@@ -1,11 +1,12 @@
 import React, {useState, useEffect, useContext} from 'react';
-import {StyleSheet, View, ScrollView} from 'react-native';
+import {StyleSheet, View, ScrollView, ActivityIndicator} from 'react-native';
 import MaterialButtonPink1 from '../components/MaterialButtonPink1';
 import MaterialHeader11 from '../components/MaterialHeader11';
 import MaterialCardWithImageAndTitle3 from '../components/MaterialCardWithImageAndTitle3';
 import UntitledComponent from '../components/UntitledComponent';
 import CartItem from '../components/CartItem';
 
+import Toast from 'react-native-simple-toast';
 import axios from 'axios';
 import {baseUrl, homeUrl} from '../config';
 import {store} from '../Store';
@@ -42,29 +43,37 @@ function PosMain(props) {
 
       <UntitledComponent></UntitledComponent>
 
-      <MaterialButtonPink1
-        style={styles.chargeButton}
-        proc={async () => {
-          const today = new Date();
-          const todayStr =
-            today.getDate() +
-            '-' +
-            (today.getMonth() + 1) +
-            '-' +
-            today.getFullYear();
+      {loading && <ActivityIndicator></ActivityIndicator>}
+      {!loading && (
+        <MaterialButtonPink1
+          style={styles.chargeButton}
+          proc={async () => {
+            const today = new Date();
+            const todayStr =
+              today.getDate() +
+              '-' +
+              (today.getMonth() + 1) +
+              '-' +
+              today.getFullYear();
 
-          await axios
-            .post(homeUrl + 'cashsale', {
-              date: todayStr,
-              product: state.cart,
-            })
-            .then(function(response) {
-              console.log(response.data);
-            })
-            .catch(function(error) {
-              console.log(error);
-            });
-        }}></MaterialButtonPink1>
+            setLoading(true);
+            await axios
+              .post(homeUrl + 'cashsale', {
+                date: todayStr,
+                product: state.cart,
+              })
+              .then(function(response) {
+                console.log(response.data);
+                Toast.show('server error');
+                setLoading(false);
+              })
+              .catch(function(error) {
+                console.log(error);
+                Toast.show('network error');
+                setLoading(false);
+              });
+          }}></MaterialButtonPink1>
+      )}
     </View>
   );
 }

@@ -24,7 +24,11 @@ function MaterialSearchBar(props) {
             onChangeText={value => {
               setKey(value);
             }}></TextInput>
-          <TouchableOpacity style={styles.rightIconButton}>
+          <TouchableOpacity
+            style={styles.rightIconButton}
+            onPress={() => {
+              setKey('');
+            }}>
             <MaterialCommunityIconsIcon
               name="close"
               style={styles.rightIcon2}></MaterialCommunityIconsIcon>

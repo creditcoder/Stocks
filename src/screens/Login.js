@@ -5,6 +5,7 @@ import {
   Image,
   ActivityIndicator,
   KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import MaterialHelperTextBox2 from '../components/MaterialHelperTextBox2';
 import MaterialHelperTextBox3 from '../components/MaterialHelperTextBox3';
@@ -77,7 +78,7 @@ function Login(props) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View
         style={{
           flexDirection: 'column',
@@ -119,7 +120,7 @@ function Login(props) {
         )}
         {loading && <ActivityIndicator></ActivityIndicator>}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
