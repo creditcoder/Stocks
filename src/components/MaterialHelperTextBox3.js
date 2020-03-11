@@ -5,7 +5,11 @@ function MaterialHelperTextBox3(props) {
   return (
     <View style={[styles.container, props.style]}>
       <Text style={styles.label}>Password</Text>
-      <TextInput placeholder="Input" style={styles.inputStyle}></TextInput>
+      <TextInput
+        placeholder="Input"
+        style={styles.inputStyle}
+        secureTextEntry={true}
+        onChangeText={props.proc}></TextInput>
       <Text style={styles.helper}></Text>
     </View>
   );

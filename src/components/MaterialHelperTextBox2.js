@@ -1,11 +1,14 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {StyleSheet, View, Text, TextInput} from 'react-native';
 
 function MaterialHelperTextBox2(props) {
   return (
     <View style={[styles.container, props.style]}>
       <Text style={styles.label}>Username</Text>
-      <TextInput placeholder="Input" style={styles.inputStyle}></TextInput>
+      <TextInput
+        placeholder="Input"
+        style={styles.inputStyle}
+        onChangeText={props.proc}></TextInput>
       <Text style={styles.helper}></Text>
     </View>
   );

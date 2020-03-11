@@ -8,6 +8,8 @@ import Login from './src/screens/Login';
 import PosMain from './src/screens/PosMain';
 import ProductList from './src/screens/ProductList';
 
+import {StateProvider} from './src/Store';
+
 const DrawerNavigation = createDrawerNavigator({
   Login: Login,
   PosMain: PosMain,
@@ -43,7 +45,11 @@ function App() {
   // } else {
   //   return isLoadingComplete ? <AppContainer /> : <AppLoading />;
   // }
-  return <AppContainer />;
+  return (
+    <StateProvider>
+      <AppContainer />
+    </StateProvider>
+  );
 }
 async function loadResourcesAsync() {
   // await Promise.all([

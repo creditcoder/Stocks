@@ -1,88 +1,157 @@
-import React, { Component } from "react";
-import { StyleSheet, View, Image } from "react-native";
-import MaterialHelperTextBox2 from "../components/MaterialHelperTextBox2";
-import MaterialHelperTextBox3 from "../components/MaterialHelperTextBox3";
-import MaterialButtonPink from "../components/MaterialButtonPink";
+import React, {useState, useEffect, useContext} from 'react';
+import {
+  StyleSheet,
+  View,
+  Image,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+} from 'react-native';
+import MaterialHelperTextBox2 from '../components/MaterialHelperTextBox2';
+import MaterialHelperTextBox3 from '../components/MaterialHelperTextBox3';
+import MaterialButtonPink from '../components/MaterialButtonPink';
+import AsyncStorage from '@react-native-community/async-storage';
+import Toast from 'react-native-simple-toast';
+import axios from 'axios';
+import {store} from '../Store';
+import {baseUrl} from '../config';
 
 function Login(props) {
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [state, dispatch] = useContext(store);
+
+  const saveToken = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (e) {
+      console.log('saveToken Exception... ... ...', e);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (username === '' || password === '') {
+      Toast.show('Input username and password！');
+      return;
+    }
+
+    setLoading(true);
+
+    const auth = {
+      username,
+      password,
+    };
+
+    await axios
+      .get(baseUrl + 'login', {
+        params: {},
+        withCredentials: true,
+        timeout: 60000,
+        auth,
+      })
+      .then(async response => {
+        console.log('respnse.data is ', response.data);
+
+        if (response.data === 'Sucess') {
+          dispatch({
+            type: 'setAuth',
+            payload: auth,
+          });
+
+          await saveToken('login', 'true');
+
+          Toast.show('success!');
+          props.navigation.navigate('PosMain');
+        } else {
+          Toast.show('Login failed!');
+          setLoading(false);
+        }
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log('error is ', error);
+        Toast.show('Network error!');
+        setLoading(false);
+      });
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.usernameTextBoxStackStack}>
-        <View style={styles.usernameTextBoxStack}>
-          <MaterialHelperTextBox2
-            style={styles.usernameTextBox}
-          ></MaterialHelperTextBox2>
-          <MaterialHelperTextBox3
-            style={styles.passwordTextBox}
-          ></MaterialHelperTextBox3>
-          <Image
-            source={require("../assets/images/logo-light-text.png")}
-            resizeMode="contain"
-            style={styles.logoName}
-          ></Image>
-        </View>
+      <View
+        style={{
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
         <Image
-          source={require("../assets/images/logo-light.png")}
+          source={require('../assets/images/logo-light.png')}
           resizeMode="contain"
-          style={styles.logo}
-        ></Image>
+          style={styles.logo}></Image>
+        <Image
+          source={require('../assets/images/logo-light-text.png')}
+          resizeMode="contain"
+          style={styles.logoName}></Image>
       </View>
-      <MaterialButtonPink style={styles.loginButton}></MaterialButtonPink>
+
+      <KeyboardAvoidingView
+        behavior="padding"
+        enabled
+        style={{marginLeft: 30, marginRight: 50}}>
+        <MaterialHelperTextBox2
+          proc={value => setUsername(value)}
+          style={styles.usernameTextBox}></MaterialHelperTextBox2>
+        <MaterialHelperTextBox3
+          proc={value => setPassword(value)}
+          style={styles.passwordTextBox}></MaterialHelperTextBox3>
+      </KeyboardAvoidingView>
+
+      <View
+        style={{
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        {!loading && (
+          <MaterialButtonPink
+            style={styles.loginButton}
+            proc={handleSubmit}></MaterialButtonPink>
+        )}
+        {loading && <ActivityIndicator></ActivityIndicator>}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   usernameTextBox: {
-    top: 144,
     left: 1,
     width: 320,
     height: 78,
-    position: "absolute"
   },
   passwordTextBox: {
-    top: 221,
     left: 0,
     width: 320,
     height: 78,
-    position: "absolute"
   },
   logoName: {
-    top: 0,
-    left: 64,
     width: 200,
-    height: 200,
-    position: "absolute"
-  },
-  usernameTextBoxStack: {
-    top: 0,
-    left: 0,
-    width: 321,
-    height: 299,
-    position: "absolute"
+    height: 30,
+    marginBottom: 50,
   },
   logo: {
-    top: 2,
     width: 96,
     height: 88,
-    position: "absolute",
-    left: 106
-  },
-  usernameTextBoxStackStack: {
-    width: 321,
-    height: 299,
-    marginTop: 86,
-    marginLeft: 26
+    marginTop: 80,
   },
   loginButton: {
+    marginTop: 50,
     width: 100,
     height: 36,
-    marginTop: 41,
-    marginLeft: 131
-  }
+  },
 });
 
 export default Login;

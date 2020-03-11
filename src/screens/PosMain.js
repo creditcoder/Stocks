@@ -1,82 +1,97 @@
-import React, { Component } from "react";
-import { StyleSheet, View } from "react-native";
-import MaterialButtonPink1 from "../components/MaterialButtonPink1";
-import MaterialHeader11 from "../components/MaterialHeader11";
-import MaterialCardWithImageAndTitle3 from "../components/MaterialCardWithImageAndTitle3";
-import UntitledComponent from "../components/UntitledComponent";
+import React, {useState, useEffect, useContext} from 'react';
+import {StyleSheet, View, ScrollView} from 'react-native';
+import MaterialButtonPink1 from '../components/MaterialButtonPink1';
+import MaterialHeader11 from '../components/MaterialHeader11';
+import MaterialCardWithImageAndTitle3 from '../components/MaterialCardWithImageAndTitle3';
+import UntitledComponent from '../components/UntitledComponent';
+import CartItem from '../components/CartItem';
+
+import axios from 'axios';
+import {baseUrl, homeUrl} from '../config';
+import {store} from '../Store';
 
 function PosMain(props) {
+  const [loading, setLoading] = useState(false);
+  const [state, dispatch] = useContext(store);
+
+  useEffect(() => {}, []);
+
   return (
     <View style={styles.container}>
-      <View style={styles.backgroundStack}>
-        <View style={styles.background}>
-          <MaterialButtonPink1
-            style={styles.chargeButton}
-          ></MaterialButtonPink1>
-        </View>
-        <MaterialHeader11 style={styles.header}></MaterialHeader11>
-        <MaterialCardWithImageAndTitle3
-          style={styles.addProduct}
-        ></MaterialCardWithImageAndTitle3>
-        <View style={styles.productDisplay}></View>
-        <UntitledComponent style={styles.calculationMenu}></UntitledComponent>
-      </View>
+      <MaterialHeader11 style={styles.header}></MaterialHeader11>
+      <MaterialCardWithImageAndTitle3
+        style={styles.addProduct}
+        proc={() => {
+          props.navigation.navigate('ProductList');
+        }}></MaterialCardWithImageAndTitle3>
+
+      <ScrollView styles={styles.productDisplay}>
+        {state.cart &&
+          state.cart.map((item, i) => (
+            <CartItem
+              key={i}
+              item={item}
+              plus={() => {
+                dispatch({type: 'plusCart', payload: item});
+              }}
+              minus={() => {
+                dispatch({type: 'minusCart', payload: item});
+              }}></CartItem>
+          ))}
+      </ScrollView>
+
+      <UntitledComponent></UntitledComponent>
+
+      <MaterialButtonPink1
+        style={styles.chargeButton}
+        proc={async () => {
+          const today = new Date();
+          const todayStr =
+            today.getDate() +
+            '-' +
+            (today.getMonth() + 1) +
+            '-' +
+            today.getFullYear();
+
+          await axios
+            .post(homeUrl + 'cashsale', {
+              date: todayStr,
+              product: state.cart,
+            })
+            .then(function(response) {
+              console.log(response.data);
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
+        }}></MaterialButtonPink1>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
-  },
-  background: {
-    top: 0,
-    left: 8,
-    width: 360,
-    height: 740,
-    backgroundColor: "rgba(230, 230, 230,1)",
-    position: "absolute"
+    flex: 1,
   },
   chargeButton: {
     width: 100,
     height: 36,
-    marginTop: 585,
-    marginLeft: 130
   },
   header: {
-    top: 0,
-    left: 9,
     width: 375,
     height: 56,
-    position: "absolute"
   },
   addProduct: {
-    top: 69,
-    left: 9,
+    top: 10,
     width: 376,
     height: 76,
-    position: "absolute"
   },
   productDisplay: {
-    top: 155,
-    left: 0,
-    width: 376,
-    height: 257,
-    backgroundColor: "rgba(255,255,255,1)",
-    position: "absolute"
+    flexDirection: 'column',
+    marginTop: 20,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255,255,255,1)',
   },
-  calculationMenu: {
-    top: 427,
-    left: 8,
-    width: 374,
-    height: 147,
-    position: "absolute"
-  },
-  backgroundStack: {
-    width: 385,
-    height: 740,
-    marginLeft: -8
-  }
 });
 
 export default PosMain;
