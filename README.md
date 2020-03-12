@@ -2,3 +2,4 @@
   test username:admin@gmail.com
   test password:admin
 
+![Alt text](diagram.png?raw=true "Title")
